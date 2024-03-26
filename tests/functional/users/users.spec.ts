@@ -1,3 +1,4 @@
+import Database from '@ioc:Adonis/Lucid/Database';
 import { test } from '@japa/runner';
 
 test.group('User', (group) =>{
@@ -5,9 +6,12 @@ test.group('User', (group) =>{
   test('Deve ser criado um usuario', async ({ client, assert }) => {
     const userPayload = {
       email: 'test@test.com',
-      username: 'test',
+      nome: 'tester',
+      sobrenome: 'testador',
+      apelido: 'test',
       senha: 'test',
-      avatar: 'https://images.com/image/1'
+      tipo: 1,
+      avatar: 'https://imags.com/image/1'
     }
 
     const response = await client.post('/users').json(userPayload)
@@ -15,9 +19,19 @@ test.group('User', (group) =>{
     const { senha, avatar, ...expected } = userPayload
 
     response.assertStatus(201)
-    response.assertBodyContains({user: expected})
+    response.assertBodyContains({ user: expected })
 
-    assert.notExists(response.body().user.senha, 'Senha defined')
+    console.log('Senha: '+response.body().user.senha);
+
+    assert.exists(response.body().user.senha, 'Senha definida')
 
   })
+
+  group.each.setup(async ()=>{
+    await Database.beginGlobalTransaction()
+    return ()=>{
+      Database.rollbackGlobalTransaction()
+    }
+  })
+
 })
