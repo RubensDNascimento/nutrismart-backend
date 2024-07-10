@@ -112,6 +112,14 @@ test.group('User', (group) =>{
 
   })
 
+  test('Deve retornar 422 quando dado obrigatorio nao fornecido', async ({client, assert}) =>{
+    const response = await client.post('/users').json({
+    })
+
+    response.assertStatus(422)
+    response.assertTextIncludes(response.body().message)
+  })
+
 
 
   group.each.setup(async ()=>{

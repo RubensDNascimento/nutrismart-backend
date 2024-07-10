@@ -5,6 +5,12 @@ import User from 'App/Models/User'
 export default class UsersController {
   public async store({request, response}:HttpContextContract){
     const userPayload = request.only(['nome','sobrenome','apelido','email','senha','crm','avatar', 'tipo'])
+
+    if (!userPayload.email || !userPayload.nome || !userPayload.sobrenome || !userPayload.apelido) {
+      throw new BadRequestException("Campo obrigatório não preenchido", 422);
+    }
+
+
     const userByEmail = await User.findBy('email', userPayload.email)
     const userByApelido = await User.findBy('apelido', userPayload.apelido)
 
