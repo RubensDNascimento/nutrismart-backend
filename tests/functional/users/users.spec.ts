@@ -1,5 +1,7 @@
+import { UserFactory, NutriFactory } from './../../../database/factories/index';
 import Database from '@ioc:Adonis/Lucid/Database';
-import { test } from '@japa/runner';
+import { assert } from '@japa/preset-adonis';
+import { Group, test } from '@japa/runner';
 
 test.group('User', (group) =>{
 
@@ -21,11 +23,96 @@ test.group('User', (group) =>{
     response.assertStatus(201)
     response.assertBodyContains({ user: expected })
 
-    console.log('Senha: '+response.body().user.senha);
 
     assert.exists(response.body().user.senha, 'Senha definida')
 
   })
+
+
+
+  test('deve retornar 409 quando email ja em uso', async ({client, assert})=>{
+
+    const {email} = await UserFactory.create()
+
+
+    const response = await client.post('/users').json({
+      email,
+      nome: 'tester',
+      sobrenome: 'testador',
+      apelido: 'test',
+      senha: 'test',
+      tipo: 1,
+      avatar: 'https://imags.com/image/1'
+    })
+
+    response.assertStatus(409)
+    response.assertTextIncludes(response.body().message)
+
+
+    //assert.include(response.body.message, 'email')
+
+    console.log(response.body());
+
+    console.log('Mensagem: ' + response.body().message)
+
+  })
+
+  test('deve retornar 409 quando apelido ja em uso', async ({client, assert})=>{
+
+    const {apelido} = await UserFactory.create()
+
+
+    const response = await client.post('/users').json({
+      email: 'teste@tester.com',
+      nome: 'tester',
+      sobrenome: 'testador',
+      apelido,
+      senha: 'test',
+      tipo: 1,
+      avatar: 'https://imags.com/image/1'
+    })
+
+    response.assertStatus(409)
+    response.assertTextIncludes(response.body().message)
+
+
+    //assert.include(response.body.message, 'email')
+
+    console.log(response.body());
+
+    console.log('Mensagem: ' + response.body().message)
+
+  })
+
+  test('deve retornar 409 quando CRM ja em uso', async ({client, assert})=>{
+
+    const {crm} = await NutriFactory.create()
+
+
+    const response = await client.post('/users').json({
+      email: 'teste@tester.com',
+      nome: 'tester',
+      sobrenome: 'testador',
+      apelido: 'test',
+      senha: 'test',
+      crm,
+      tipo: 1,
+      avatar: 'https://imags.com/image/1'
+    })
+
+    response.assertStatus(409)
+    response.assertTextIncludes(response.body().message)
+
+
+    //assert.include(response.body.message, 'email')
+
+    console.log(response.body());
+
+    console.log('Mensagem: ' + response.body().message)
+
+  })
+
+
 
   group.each.setup(async ()=>{
     await Database.beginGlobalTransaction()
@@ -33,5 +120,4 @@ test.group('User', (group) =>{
       Database.rollbackGlobalTransaction()
     }
   })
-
 })
