@@ -1,14 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import BadRequestException from 'App/Exceptions/BadRequestException';
 import User from 'App/Models/User'
+import CreateUserValidator from 'App/Validators/CreateUserValidator';
 
 export default class UsersController {
   public async store({request, response}:HttpContextContract){
-    const userPayload = request.only(['nome','sobrenome','apelido','email','senha','crm','avatar', 'tipo'])
-
-    if (!userPayload.email || !userPayload.nome || !userPayload.sobrenome || !userPayload.apelido) {
-      throw new BadRequestException("Campo obrigatório não preenchido", 422);
-    }
+    const userPayload = await request.validate(CreateUserValidator) //request.only(['nome','sobrenome','apelido','email','senha','crm','avatar', 'tipo'])
 
 
     const userByEmail = await User.findBy('email', userPayload.email)
