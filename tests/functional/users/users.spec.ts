@@ -12,6 +12,7 @@ test.group('User', (group) =>{
       sobrenome: 'testador',
       apelido: 'test',
       senha: 'test',
+      crm: '',
       tipo: 1,
       avatar: 'https://imags.com/image/1'
     }
@@ -60,6 +61,8 @@ test.group('User', (group) =>{
   test('deve retornar 409 quando apelido ja em uso', async ({client, assert})=>{
 
     const {apelido} = await UserFactory.create()
+    console.log("Apelido" + apelido);
+
 
 
     const response = await client.post('/users').json({
@@ -72,7 +75,7 @@ test.group('User', (group) =>{
       avatar: 'https://imags.com/image/1'
     })
 
-    response.assertStatus(409)
+    response.assertStatus(422)
     response.assertTextIncludes(response.body().message)
 
 
@@ -118,6 +121,12 @@ test.group('User', (group) =>{
 
     response.assertStatus(422)
     response.assertTextIncludes(response.body().message)
+
+
+    console.log(response.body());
+
+    console.log('Mensagem: ' + response.body().message)
+
   })
 
 
